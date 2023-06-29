@@ -146,7 +146,7 @@ const auth = require('@plumek/jwt-auth-express');
 const express = require('express');
 const app = express();
 
-app.use(authenticateToken(secretName));
+app.use(auth(secretName));
 
 app.get('/protected', (req, res, next) => {
   //...
