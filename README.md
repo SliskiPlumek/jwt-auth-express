@@ -205,7 +205,7 @@ The middleware function performs the following steps:
 ```javascript
 const auth = require('@plumek/jwt-auth-express');
 
-app.use(authenticateToken('mySecret'));
+app.use(auth('mySecret'));
 
 // Protected routes can now access the authenticated user's ID through req.userId
 // and the authentication status through req.isAuth
