@@ -15,11 +15,13 @@ function authenticateToken(secretName) {
     try {
       decodedToken = jwt.verify(token, secretName);
     } catch (err) {
+      req.isAuth = false
       err.statusCode = 401; 
       return next(err); 
     }
 
     if (!decodedToken) {
+      req.isAuth = false
       const error = new Error("Not authenticated.");
       error.statusCode = 401;
       return next(error); 
