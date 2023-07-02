@@ -6,7 +6,7 @@ function authenticateToken(secretName) {
 
     if (!authHeader) {
       req.isAuth = false;
-      return next(); 
+      return next();
     }
 
     const token = authHeader.split(" ")[1];
@@ -15,16 +15,16 @@ function authenticateToken(secretName) {
     try {
       decodedToken = jwt.verify(token, secretName);
     } catch (err) {
-      req.isAuth = false
-      err.statusCode = 401; 
-      return next(err); 
+      req.isAuth = false;
+      err.statusCode = 401;
+      return next(err);
     }
 
     if (!decodedToken) {
-      req.isAuth = false
+      req.isAuth = false;
       const error = new Error("Not authenticated.");
       error.statusCode = 401;
-      return next(error); 
+      return next(error);
     }
 
     req.userId = decodedToken.userId;
@@ -34,4 +34,3 @@ function authenticateToken(secretName) {
 }
 
 module.exports = authenticateToken;
-
