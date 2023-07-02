@@ -18,7 +18,7 @@ function authenticateToken(secretName) {
       req.isAuth = false;
       err.statusCode = 401;
       return next(err);
-    }
+    }``
 
     if (!decodedToken) {
       req.isAuth = false;
