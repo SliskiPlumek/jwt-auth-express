@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-function authenticateToken(secretName, refreshAccessToken) {
+function authenticateToken(secretName) {
   return async function (req, res, next) {
     const authHeader = req.get("Authorization");
 
@@ -15,26 +15,28 @@ function authenticateToken(secretName, refreshAccessToken) {
     try {
       decodedToken = jwt.verify(token, secretName);
     } catch (err) {
-      if (err.name === 'TokenExpiredError' && err.expiredAt) {
-        try {
-          const newToken = await refreshAccessToken(err.expiredAt, secretName);
-          req.tokenRefreshed = true;
-          req.newAccessToken = newToken;
-        } catch (refreshErr) {
-          return next(refreshErr)
-        }
-      }
-      
       req.isAuth = false;
       err.statusCode = 401;
       return next(err);
     }
 
-    if (!decodedToken) {
-      req.isAuth = false;
-      const error = new Error("Not authenticated.");
-      error.statusCode = 401;
-      return next(error);
+    if (decodedToken.expiresIn) {
+      const expirationTime = new Date(decodedToken.expiresIn);
+      const currentTime = new Date();
+
+      if (expirationTime <= currentTime) {
+        const newAccessToken = jwt.sign(
+          {
+            userId: decodedToken.userId,
+            email: decodedToken.email,
+            expiresIn: "15m",
+          },
+          secretName
+        );
+
+        req.tokenRefreshed = true;
+        req.newAccessToken = newAccessToken;
+      }
     }
 
     req.userId = decodedToken.userId;
