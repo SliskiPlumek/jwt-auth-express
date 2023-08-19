@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 function authenticateToken(secretName) {
-  return async function (req, res, next) {
+  return function (req, res, next) {
     const authHeader = req.get("Authorization");
 
     if (!authHeader) {
@@ -20,23 +20,11 @@ function authenticateToken(secretName) {
       return next(err);
     }
 
-    if (decodedToken.expiresIn) {
-      const expirationTime = new Date(decodedToken.expiresIn);
-      const currentTime = new Date();
-
-      if (expirationTime <= currentTime) {
-        const newAccessToken = jwt.sign(
-          {
-            userId: decodedToken.userId,
-            email: decodedToken.email,
-            expiresIn: "15m",
-          },
-          secretName
-        );
-
-        req.tokenRefreshed = true;
-        req.newAccessToken = newAccessToken;
-      }
+    if (!decodedToken) {
+      req.isAuth = false;
+      const error = new Error("Not authenticated.");
+      error.statusCode = 401;
+      return next(error);
     }
 
     req.userId = decodedToken.userId;
